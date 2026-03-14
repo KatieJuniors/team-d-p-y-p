@@ -1,22 +1,43 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: COREINVENTORY API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: products
+    description: Product management
+  - name: categories
+    description: Product categories
+  - name: warehouses
+    description: Warehouse management
+  - name: locations
+    description: Warehouse locations
+  - name: receipts
+    description: Incoming goods receipts
+  - name: deliveries
+    description: Outgoing delivery orders
+  - name: transfers
+    description: Internal stock transfers
+  - name: adjustments
+    description: Inventory adjustments
+  - name: ledger
+    description: Stock ledger / move history
+  - name: dashboard
+    description: Dashboard analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +45,995 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/signup:
+    post:
+      operationId: authSignup
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: authLogin
+      tags: [auth]
+      summary: Log in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/forgot-password:
+    post:
+      operationId: authForgotPassword
+      tags: [auth]
+      summary: Request OTP for password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+      responses:
+        "200":
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/verify-otp:
+    post:
+      operationId: authVerifyOtp
+      tags: [auth]
+      summary: Verify OTP and reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOtpRequest"
+      responses:
+        "200":
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: authGetMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard KPI stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/stock-distribution:
+    get:
+      operationId: getStockDistribution
+      tags: [dashboard]
+      summary: Get stock distribution by category
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Stock distribution data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockDistributionItem"
+
+  /dashboard/recent-operations:
+    get:
+      operationId: getRecentOperations
+      tags: [dashboard]
+      summary: Get recent stock operations
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Recent operations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LedgerEntry"
+
+  /dashboard/low-stock:
+    get:
+      operationId: getLowStockItems
+      tags: [dashboard]
+      summary: Get low stock items
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Low stock items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a new category
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /categories/{id}:
+    put:
+      operationId: updateCategory
+      tags: [categories]
+      summary: Update a category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+      responses:
+        "200":
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Category deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: warehouseId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in_stock, low_stock, out_of_stock]
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a new product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a product by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /warehouses:
+    get:
+      operationId: listWarehouses
+      tags: [warehouses]
+      summary: List all warehouses
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of warehouses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Warehouse"
+    post:
+      operationId: createWarehouse
+      tags: [warehouses]
+      summary: Create a new warehouse
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWarehouseRequest"
+      responses:
+        "201":
+          description: Warehouse created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Warehouse"
+
+  /warehouses/{id}:
+    put:
+      operationId: updateWarehouse
+      tags: [warehouses]
+      summary: Update a warehouse
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWarehouseRequest"
+      responses:
+        "200":
+          description: Warehouse updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Warehouse"
+    delete:
+      operationId: deleteWarehouse
+      tags: [warehouses]
+      summary: Delete a warehouse
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Warehouse deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [locations]
+      summary: List locations, optionally filtered by warehouse
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: warehouseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+    post:
+      operationId: createLocation
+      tags: [locations]
+      summary: Create a new location
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLocationRequest"
+      responses:
+        "201":
+          description: Location created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+
+  /locations/{id}:
+    delete:
+      operationId: deleteLocation
+      tags: [locations]
+      summary: Delete a location
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Location deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /receipts:
+    get:
+      operationId: listReceipts
+      tags: [receipts]
+      summary: List all receipts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, waiting, ready, done, canceled]
+        - name: warehouseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of receipts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Receipt"
+    post:
+      operationId: createReceipt
+      tags: [receipts]
+      summary: Create a new receipt
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReceiptRequest"
+      responses:
+        "201":
+          description: Receipt created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+
+  /receipts/{id}:
+    get:
+      operationId: getReceipt
+      tags: [receipts]
+      summary: Get a receipt by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Receipt details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+    put:
+      operationId: updateReceipt
+      tags: [receipts]
+      summary: Update a receipt
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReceiptRequest"
+      responses:
+        "200":
+          description: Receipt updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+
+  /receipts/{id}/validate:
+    post:
+      operationId: validateReceipt
+      tags: [receipts]
+      summary: Validate a receipt (increases stock)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Receipt validated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+
+  /receipts/{id}/cancel:
+    post:
+      operationId: cancelReceipt
+      tags: [receipts]
+      summary: Cancel a receipt
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Receipt canceled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+
+  /deliveries:
+    get:
+      operationId: listDeliveries
+      tags: [deliveries]
+      summary: List all delivery orders
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, waiting, ready, done, canceled]
+        - name: warehouseId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of delivery orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Delivery"
+    post:
+      operationId: createDelivery
+      tags: [deliveries]
+      summary: Create a new delivery order
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDeliveryRequest"
+      responses:
+        "201":
+          description: Delivery order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+
+  /deliveries/{id}:
+    get:
+      operationId: getDelivery
+      tags: [deliveries]
+      summary: Get a delivery order by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Delivery order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+    put:
+      operationId: updateDelivery
+      tags: [deliveries]
+      summary: Update a delivery order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDeliveryRequest"
+      responses:
+        "200":
+          description: Delivery updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+
+  /deliveries/{id}/validate:
+    post:
+      operationId: validateDelivery
+      tags: [deliveries]
+      summary: Validate a delivery order (decreases stock)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Delivery validated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+
+  /deliveries/{id}/cancel:
+    post:
+      operationId: cancelDelivery
+      tags: [deliveries]
+      summary: Cancel a delivery order
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Delivery canceled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Delivery"
+
+  /transfers:
+    get:
+      operationId: listTransfers
+      tags: [transfers]
+      summary: List all internal transfers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, waiting, ready, done, canceled]
+      responses:
+        "200":
+          description: List of transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transfer"
+    post:
+      operationId: createTransfer
+      tags: [transfers]
+      summary: Create a new internal transfer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransferRequest"
+      responses:
+        "201":
+          description: Transfer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+
+  /transfers/{id}:
+    get:
+      operationId: getTransfer
+      tags: [transfers]
+      summary: Get a transfer by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+
+  /transfers/{id}/validate:
+    post:
+      operationId: validateTransfer
+      tags: [transfers]
+      summary: Validate a transfer (moves stock between locations)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer validated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+
+  /transfers/{id}/cancel:
+    post:
+      operationId: cancelTransfer
+      tags: [transfers]
+      summary: Cancel a transfer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer canceled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+
+  /adjustments:
+    get:
+      operationId: listAdjustments
+      tags: [adjustments]
+      summary: List all inventory adjustments
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of adjustments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Adjustment"
+    post:
+      operationId: createAdjustment
+      tags: [adjustments]
+      summary: Create an inventory adjustment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdjustmentRequest"
+      responses:
+        "201":
+          description: Adjustment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Adjustment"
+
+  /adjustments/{id}/validate:
+    post:
+      operationId: validateAdjustment
+      tags: [adjustments]
+      summary: Validate an adjustment (updates stock)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Adjustment validated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Adjustment"
+
+  /ledger:
+    get:
+      operationId: listLedger
+      tags: [ledger]
+      summary: List stock ledger entries (move history)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: query
+          schema:
+            type: integer
+        - name: operationType
+          in: query
+          schema:
+            type: string
+            enum: [receipt, delivery, transfer, adjustment]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Stock ledger entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LedgerEntry"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +1043,728 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    SignupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          type: string
+          enum: [manager, staff]
+          default: staff
+      required:
+        - name
+        - email
+        - password
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+        - email
+
+    VerifyOtpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+        newPassword:
+          type: string
+          minLength: 6
+      required:
+        - email
+        - otp
+        - newPassword
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [manager, staff]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    DashboardStats:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+        lowStockItems:
+          type: integer
+        outOfStockItems:
+          type: integer
+        pendingReceipts:
+          type: integer
+        pendingDeliveries:
+          type: integer
+        scheduledTransfers:
+          type: integer
+        totalWarehouses:
+          type: integer
+      required:
+        - totalProducts
+        - lowStockItems
+        - outOfStockItems
+        - pendingReceipts
+        - pendingDeliveries
+        - scheduledTransfers
+        - totalWarehouses
+
+    StockDistributionItem:
+      type: object
+      properties:
+        category:
+          type: string
+        quantity:
+          type: integer
+        percentage:
+          type: number
+      required:
+        - category
+        - quantity
+        - percentage
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - createdAt
+
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+        capacity:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+        createdAt:
+          type: string
+          format: date-time
+        locations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Location"
+      required:
+        - id
+        - name
+        - status
+        - createdAt
+
+    CreateWarehouseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        capacity:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+      required:
+        - name
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        warehouseId:
+          type: integer
+        name:
+          type: string
+        zone:
+          type: string
+        rack:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - warehouseId
+        - name
+        - createdAt
+
+    CreateLocationRequest:
+      type: object
+      properties:
+        warehouseId:
+          type: integer
+        name:
+          type: string
+        zone:
+          type: string
+        rack:
+          type: string
+      required:
+        - warehouseId
+        - name
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sku:
+          type: string
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+        unitOfMeasure:
+          type: string
+        currentStock:
+          type: integer
+        reorderThreshold:
+          type: integer
+        warehouseId:
+          type: integer
+        warehouseName:
+          type: string
+        locationId:
+          type: integer
+        locationName:
+          type: string
+        stockStatus:
+          type: string
+          enum: [in_stock, low_stock, out_of_stock]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - sku
+        - unitOfMeasure
+        - currentStock
+        - reorderThreshold
+        - stockStatus
+        - createdAt
+        - updatedAt
+
+    CreateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        categoryId:
+          type: integer
+        unitOfMeasure:
+          type: string
+        initialStock:
+          type: integer
+          default: 0
+        warehouseId:
+          type: integer
+        locationId:
+          type: integer
+        reorderThreshold:
+          type: integer
+          default: 10
+      required:
+        - name
+        - sku
+        - unitOfMeasure
+
+    Receipt:
+      type: object
+      properties:
+        id:
+          type: integer
+        referenceNo:
+          type: string
+        supplier:
+          type: string
+        warehouseId:
+          type: integer
+        warehouseName:
+          type: string
+        status:
+          type: string
+          enum: [draft, waiting, ready, done, canceled]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReceiptItem"
+      required:
+        - id
+        - referenceNo
+        - supplier
+        - status
+        - createdAt
+        - updatedAt
+
+    ReceiptItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        unitOfMeasure:
+          type: string
+      required:
+        - id
+        - productId
+        - productName
+        - sku
+        - quantity
+        - unitOfMeasure
+
+    CreateReceiptRequest:
+      type: object
+      properties:
+        supplier:
+          type: string
+        warehouseId:
+          type: integer
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateReceiptItem"
+      required:
+        - supplier
+        - warehouseId
+        - items
+
+    CreateReceiptItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity
+
+    UpdateReceiptRequest:
+      type: object
+      properties:
+        supplier:
+          type: string
+        warehouseId:
+          type: integer
+        notes:
+          type: string
+        status:
+          type: string
+          enum: [draft, waiting, ready, done, canceled]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateReceiptItem"
+
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: integer
+        referenceNo:
+          type: string
+        customer:
+          type: string
+        warehouseId:
+          type: integer
+        warehouseName:
+          type: string
+        status:
+          type: string
+          enum: [draft, waiting, ready, done, canceled]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeliveryItem"
+      required:
+        - id
+        - referenceNo
+        - customer
+        - status
+        - createdAt
+        - updatedAt
+
+    DeliveryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        unitOfMeasure:
+          type: string
+      required:
+        - id
+        - productId
+        - productName
+        - sku
+        - quantity
+        - unitOfMeasure
+
+    CreateDeliveryRequest:
+      type: object
+      properties:
+        customer:
+          type: string
+        warehouseId:
+          type: integer
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateDeliveryItem"
+      required:
+        - customer
+        - warehouseId
+        - items
+
+    CreateDeliveryItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity
+
+    UpdateDeliveryRequest:
+      type: object
+      properties:
+        customer:
+          type: string
+        warehouseId:
+          type: integer
+        notes:
+          type: string
+        status:
+          type: string
+          enum: [draft, waiting, ready, done, canceled]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateDeliveryItem"
+
+    Transfer:
+      type: object
+      properties:
+        id:
+          type: integer
+        referenceNo:
+          type: string
+        sourceLocationId:
+          type: integer
+        sourceLocationName:
+          type: string
+        destinationLocationId:
+          type: integer
+        destinationLocationName:
+          type: string
+        status:
+          type: string
+          enum: [draft, waiting, ready, done, canceled]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransferItem"
+      required:
+        - id
+        - referenceNo
+        - sourceLocationId
+        - destinationLocationId
+        - status
+        - createdAt
+        - updatedAt
+
+    TransferItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        unitOfMeasure:
+          type: string
+      required:
+        - id
+        - productId
+        - productName
+        - sku
+        - quantity
+        - unitOfMeasure
+
+    CreateTransferRequest:
+      type: object
+      properties:
+        sourceLocationId:
+          type: integer
+        destinationLocationId:
+          type: integer
+        notes:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateTransferItem"
+      required:
+        - sourceLocationId
+        - destinationLocationId
+        - items
+
+    CreateTransferItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+      required:
+        - productId
+        - quantity
+
+    Adjustment:
+      type: object
+      properties:
+        id:
+          type: integer
+        referenceNo:
+          type: string
+        productId:
+          type: integer
+        productName:
+          type: string
+        sku:
+          type: string
+        locationId:
+          type: integer
+        locationName:
+          type: string
+        recordedQuantity:
+          type: integer
+        actualQuantity:
+          type: integer
+        difference:
+          type: integer
+        reason:
+          type: string
+        status:
+          type: string
+          enum: [draft, done]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - referenceNo
+        - productId
+        - productName
+        - sku
+        - recordedQuantity
+        - actualQuantity
+        - difference
+        - status
+        - createdAt
+
+    CreateAdjustmentRequest:
+      type: object
+      properties:
+        productId:
+          type: integer
+        locationId:
+          type: integer
+        actualQuantity:
+          type: integer
+        reason:
+          type: string
+      required:
+        - productId
+        - actualQuantity
+
+    LedgerEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+        operationType:
+          type: string
+          enum: [receipt, delivery, transfer, adjustment]
+        productId:
+          type: integer
+        productName:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        sourceLocation:
+          type: string
+        destinationLocation:
+          type: string
+        referenceDoc:
+          type: string
+        userId:
+          type: integer
+        userName:
+          type: string
+      required:
+        - id
+        - timestamp
+        - operationType
+        - productId
+        - productName
+        - sku
+        - quantity
+        - referenceDoc

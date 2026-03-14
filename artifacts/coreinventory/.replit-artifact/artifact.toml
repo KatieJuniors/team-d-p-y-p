@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "COREINVENTORY"
+version = "1.0.0"
+id = "artifacts/coreinventory"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 21810
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/coreinventory run dev"
+
+[services.env]
+PORT = "21810"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/coreinventory", "run", "build"]
+publicDir = "artifacts/coreinventory/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

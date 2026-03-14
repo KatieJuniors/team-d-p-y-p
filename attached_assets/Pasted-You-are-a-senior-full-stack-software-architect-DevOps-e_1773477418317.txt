@@ -1,0 +1,474 @@
+You are a senior full-stack software architect, DevOps engineer, and UI/UX designer.
+
+Your task is to generate a COMPLETE production-ready web application called:
+
+COREINVENTORY
+
+This is a modular Inventory Management System (IMS) that replaces manual registers and spreadsheets with a centralized real-time digital system.
+
+The system must support product management, incoming stock, outgoing stock, internal warehouse transfers, stock adjustments, and full stock movement tracking.
+
+Your output must include FULL CODE and DOWNLOADABLE FILE STRUCTURE.
+
+The final result must be a **complete project repository that can be downloaded and run locally**.
+
+-----------------------------------------------------
+
+PRIMARY USERS
+
+The application must support two main user roles:
+
+1. Inventory Managers
+Responsibilities:
+- Manage products
+- Manage incoming stock
+- Manage deliveries
+- Monitor inventory analytics
+- Configure warehouses
+- Review stock history
+
+2. Warehouse Staff
+Responsibilities:
+- Perform picking
+- Perform shelving
+- Move items between racks
+- Perform physical stock counting
+- Process deliveries
+
+Use role-based access control.
+
+-----------------------------------------------------
+
+AUTHENTICATION SYSTEM
+
+Implement a secure authentication system.
+
+Features required:
+
+• User Signup
+• User Login
+• JWT authentication
+• OTP-based password reset
+• Password hashing using bcrypt
+• Role-based access control
+• Secure session handling
+
+Authentication Flow:
+
+1. User signs up
+2. User logs in
+3. JWT token issued
+4. If password forgotten:
+   - user requests password reset
+   - system sends OTP
+   - user verifies OTP
+   - password reset allowed
+5. After login user is redirected to Inventory Dashboard.
+
+-----------------------------------------------------
+
+MAIN DASHBOARD
+
+The dashboard must show real-time inventory insights.
+
+Display KPI cards for:
+
+• Total Products in Stock
+• Low Stock Items
+• Out of Stock Items
+• Pending Receipts
+• Pending Deliveries
+• Internal Transfers Scheduled
+
+Dashboard components must include:
+
+• Inventory summary cards
+• Stock distribution charts
+• Warehouse usage visualization
+• Recent operations feed
+• Low stock alert list
+
+-----------------------------------------------------
+
+DYNAMIC DASHBOARD FILTERS
+
+Allow filtering by:
+
+Document Type:
+- Receipts
+- Delivery Orders
+- Internal Transfers
+- Inventory Adjustments
+
+Status:
+- Draft
+- Waiting
+- Ready
+- Done
+- Canceled
+
+Warehouse / Location
+
+Product Category
+
+-----------------------------------------------------
+
+APPLICATION NAVIGATION
+
+Sidebar Navigation:
+
+Dashboard
+
+Products
+- Product List
+- Create Product
+- Edit Product
+- Product Categories
+- Reordering Rules
+
+Operations
+- Receipts
+- Delivery Orders
+- Internal Transfers
+- Inventory Adjustments
+- Move History
+
+Settings
+- Warehouse Management
+
+Profile Menu
+- My Profile
+- Logout
+
+-----------------------------------------------------
+
+PRODUCT MANAGEMENT MODULE
+
+Users must be able to create and manage products.
+
+Product fields:
+
+• Product Name
+• SKU / Product Code
+• Category
+• Unit of Measure
+• Initial Stock (optional)
+• Warehouse Location
+• Reorder Threshold
+• Created Date
+• Updated Date
+
+Features:
+
+• Create product
+• Update product
+• Delete product
+• Search by SKU
+• Filter by category
+• Stock availability per location
+
+-----------------------------------------------------
+
+RECEIPTS MODULE (INCOMING GOODS)
+
+Receipts represent goods arriving from vendors.
+
+Workflow:
+
+1. Create receipt
+2. Add supplier
+3. Add products
+4. Enter quantities
+5. Validate receipt
+
+When validated:
+
+Stock automatically increases.
+
+Example:
+
+Receive 50 units of Steel Rods
+
+Stock change:
++50 units
+
+Receipt fields:
+
+• Receipt ID
+• Supplier
+• Date
+• Products
+• Quantity
+• Warehouse
+• Status
+
+Statuses:
+
+Draft
+Waiting
+Ready
+Done
+Canceled
+
+-----------------------------------------------------
+
+DELIVERY ORDERS MODULE (OUTGOING GOODS)
+
+Represents stock leaving the warehouse.
+
+Workflow:
+
+1. Create delivery order
+2. Select products
+3. Pick items
+4. Pack items
+5. Validate order
+
+When validated:
+
+Stock decreases automatically.
+
+Example:
+
+Delivery order for 10 chairs
+
+Stock change:
+-10 units
+
+-----------------------------------------------------
+
+INTERNAL TRANSFERS
+
+Move stock inside the organization.
+
+Examples:
+
+• Main Warehouse → Production Floor
+• Rack A → Rack B
+• Warehouse 1 → Warehouse 2
+
+Workflow:
+
+1. Create transfer
+2. Select source location
+3. Select destination location
+4. Add products
+5. Confirm transfer
+
+Rules:
+
+• Total stock remains same
+• Only location changes
+
+-----------------------------------------------------
+
+INVENTORY ADJUSTMENT MODULE
+
+Used when physical stock does not match recorded stock.
+
+Workflow:
+
+1. Select product
+2. Select location
+3. Enter counted quantity
+4. System calculates difference
+5. Adjustment recorded
+
+Example:
+
+Recorded: 100
+Actual: 97
+
+Adjustment:
+-3
+
+-----------------------------------------------------
+
+MOVE HISTORY / STOCK LEDGER
+
+All stock movements must be recorded.
+
+Ledger fields:
+
+• Timestamp
+• User
+• Operation type
+• Product
+• Quantity
+• Source location
+• Destination location
+• Reference document
+
+Operation types:
+
+• Receipt
+• Delivery
+• Transfer
+• Adjustment
+
+-----------------------------------------------------
+
+WAREHOUSE MANAGEMENT
+
+Support multiple warehouses.
+
+Warehouse fields:
+
+• Warehouse Name
+• Address
+• Storage Zones
+• Rack Locations
+• Capacity
+• Status
+
+Features:
+
+• Create warehouse
+• Manage warehouse locations
+• Rack hierarchy
+• Multi-warehouse tracking
+
+-----------------------------------------------------
+
+LOW STOCK ALERTS
+
+When stock <= reorder threshold:
+
+Trigger alerts.
+
+Alert types:
+
+• Dashboard notification
+• Warning in product table
+• Optional email alert
+
+-----------------------------------------------------
+
+SMART SEARCH
+
+Search by:
+
+• SKU
+• Product Name
+• Category
+• Warehouse
+
+Filters:
+
+• Stock status
+• Category
+• Warehouse
+• Document status
+
+-----------------------------------------------------
+
+DATABASE DESIGN
+
+Create relational schema.
+
+Tables:
+
+Users
+Products
+Categories
+Warehouses
+Locations
+Receipts
+ReceiptItems
+DeliveryOrders
+DeliveryItems
+Transfers
+TransferItems
+StockAdjustments
+StockLedger
+
+Include:
+
+• primary keys
+• foreign keys
+• indexes
+• constraints
+
+-----------------------------------------------------
+
+TECH STACK
+
+Frontend:
+Next.js
+React
+TailwindCSS
+ShadCN UI
+React Query
+
+Backend:
+Node.js
+Express or NestJS
+
+Database:
+PostgreSQL
+
+Other:
+JWT
+Docker
+REST API
+
+-----------------------------------------------------
+
+UI DESIGN
+
+Create a modern SaaS dashboard interface.
+
+Include:
+
+• Sidebar layout
+• Data tables
+• Status badges
+• Charts
+• Modal forms
+• Responsive design
+
+-----------------------------------------------------
+
+DEVOPS
+
+Provide:
+
+Dockerfile
+Docker Compose
+Environment variables
+Local development setup
+
+-----------------------------------------------------
+
+OUTPUT REQUIREMENTS
+
+Your response must generate the project as a **downloadable repository**.
+
+Provide:
+
+1. Full project folder structure
+2. All frontend code files
+3. All backend code files
+4. Database schema and migrations
+5. API routes
+6. UI components
+7. Docker configuration
+8. README with setup instructions
+9. Sample seed data
+
+IMPORTANT:
+
+Provide the final project in a **downloadable ZIP format** containing all files.
+
+Also show the **full code for every file** so the user can copy or download it.
+
+The project must run locally with:
+
+npm install
+npm run dev
+
+-----------------------------------------------------
+
+Ensure the system supports the complete inventory lifecycle:
+
+Receive Goods → Transfer Internally → Deliver Goods → Adjust Stock → Record in Ledger

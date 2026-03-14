@@ -1,0 +1,18 @@
+packages:
+  "recharts": "For dashboard KPIs and stock distribution charts"
+  "framer-motion": "For smooth page transitions and interactive animations"
+  "date-fns": "For formatting timestamps in ledgers and operations"
+  "@hookform/resolvers": "For Zod form validation"
+  "react-hook-form": "For complex forms (receipts, products)"
+
+images:
+  - path: "artifacts/coreinventory/public/images/auth-bg.png"
+    description: "Dark, sleek, minimal abstract geometric mesh with subtle electric indigo and violet neon lighting, representing a modern enterprise tech infrastructure, high resolution, soft glowing nodes"
+    aspect_ratio: "16:9"
+  - path: "artifacts/coreinventory/public/images/logo.png"
+    description: "Minimalist glowing neon geometric cube logo in deep blue and purple, transparent background, clean corporate tech style"
+    aspect_ratio: "1:1"
+
+notes:
+  - Global fetch is monkey-patched in App.tsx to automatically inject the Bearer token from localStorage for all generated orval API hooks.
+  - The application is forced into Dark Mode to meet the design requirements of a "modern dark professional SaaS".
