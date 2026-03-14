@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login / Signup Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        .container {
+            width: 350px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%; padding: 8px; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 4px;
+        }
+        button {
+            width: 100%; padding: 10px; background: #007bff;
+            color: #fff; border: none; border-radius: 4px;
+            font-size: 16px; cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        .toggle-link {
+            display: block; text-align: center; margin-top: 15px;
+            color: #007bff; cursor: pointer; text-decoration: underline;
+        }
+        .message { text-align: center; color: green; margin-bottom: 10px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="form-title">Login</h2>
+        <div id="message" class="message"></div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <form id="signup-form" style="display:none;">
+            <div class="form-group">
+                <label for="signup-username">Username</label>
+                <input type="text" id="signup-username" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" required>
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" required>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <span class="toggle-link" id="toggle-link">Don't have an account? Sign Up</span>
+    </div>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const toggleLink = document.getElementById('toggle-link');
+        const formTitle = document.getElementById('form-title');
+        const messageDiv = document.getElementById('message');
+
+        // Simple in-memory user store for demo purposes
+        const users = [];
+
+        toggleLink.onclick = function() {
+            if (loginForm.style.display !== 'none') {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                formTitle.textContent = 'Sign Up';
+                toggleLink.textContent = 'Already have an account? Login';
+                messageDiv.textContent = '';
+            } else {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                formTitle.textContent = 'Login';
+                toggleLink.textContent = "Don't have an account? Sign Up";
+                messageDiv.textContent = '';
+            }
+        };
+
+        signupForm.onsubmit = function(e) {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+
+            if (users.find(u => u.email === email)) {
+                messageDiv.textContent = 'Email already registered.';
+                messageDiv.className = 'message error';
+                return;
+            }
+            users.push({ username, email, password });
+            messageDiv.textContent = 'Signup successful! Please login.';
+            messageDiv.className = 'message';
+            signupForm.reset();
+            setTimeout(() => {
+                toggleLink.click();
+            }, 1000);
+        };
+
+        loginForm.onsubmit = function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                messageDiv.textContent = `Welcome, ${user.username}!`;
+                messageDiv.className = 'message';
+                loginForm.reset();
+            } else {
+                messageDiv.textContent = 'Invalid email or password.';
+                messageDiv.className = 'message error';
+            }
+        };
+    </script>
+</body>
+</html>
